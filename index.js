@@ -125,6 +125,8 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 var vite_config_default = defineConfig({
+  // 꼭 추가해야 GitHub Pages에서 경로가 맞아요!
+  base: "/ai_book/",
   plugins: [
     react(),
     runtimeErrorOverlay(),
