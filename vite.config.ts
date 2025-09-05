@@ -4,6 +4,7 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 export default defineConfig({
+  base: "/ai_book/",
   plugins: [
     react(),
     runtimeErrorOverlay(),
@@ -23,10 +24,9 @@ export default defineConfig({
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
   },
-  root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
-    emptyOutDir: true,
+    outDir: ".", // 빌드 파일을 루트(최상위)에 생성
+    emptyOutDir: false, // 소스 파일 삭제 방지
   },
   server: {
     fs: {
