@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "wouter";
 import { BookOpen, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -68,7 +69,7 @@ export default function Navigation() {
             >
               저자
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection("contact")}
               className="text-muted-foreground hover:text-foreground transition-colors"
               data-testid="link-contact"
@@ -86,6 +87,9 @@ export default function Navigation() {
               구매하기
             </Button>
             
+            <Button variant="secondary" className="hidden md:inline-flex" asChild>
+              <Link href="/memory-game">카드 게임</Link>
+            </Button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden glass-button p-2 rounded-lg"
@@ -128,14 +132,21 @@ export default function Navigation() {
               >
                 저자
               </button>
-              <button 
+              <button
                 onClick={() => scrollToSection("contact")}
                 className="text-left text-muted-foreground hover:text-foreground transition-colors"
                 data-testid="mobile-link-contact"
               >
                 문의
               </button>
-              <Button 
+              <Link
+                href="/memory-game"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-left text-muted-foreground hover:text-foreground transition-colors"
+              >
+                카드 게임
+              </Link>
+              <Button
                 onClick={() => scrollToSection("purchase")}
                 className="primary-button text-primary-foreground px-6 py-2 rounded-full font-medium w-full"
                 data-testid="mobile-button-purchase"
