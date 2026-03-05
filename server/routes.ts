@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertContactSchema } from "@shared/schema";
 import { z } from "zod";
+import { parseNewsText } from "./news-parser";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Contact form submission
@@ -40,6 +41,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         message: "연락처 정보를 불러오는데 실패했습니다." 
+      });
+    }
+  });
+
+  // News infographic API
+  app.post("/api/news/parse", async (req, res) => {
+    try {
+      const { text } = req.body;
+      if (!text || typeof text !== "string" || text.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "뉴스 텍스트를 입력해주세요.",
+        });
+      }
+      const parsed = parseNewsText(text.trim());
+      res.json({ success: true, data: parsed });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "뉴스 파싱 중 오류가 발생했습니다.",
       });
     }
   });
