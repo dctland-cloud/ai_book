@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { parseNewsText, type ParsedNews } from "@/lib/news-parser";
 import NewsInfographic from "@/components/news-infographic";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,21 +14,6 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import html2canvas from "html2canvas";
-
-interface NewsItem {
-  id: number;
-  title: string;
-  summary: string;
-  category: string;
-  sentiment?: "positive" | "negative" | "neutral";
-}
-
-interface ParsedNews {
-  date: string;
-  title: string;
-  items: NewsItem[];
-  generatedAt: string;
-}
 
 const SAMPLE_NEWS = `1. 한은, 기준금리 3.00%로 동결... "경기 하방 리스크 주시"
 한국은행 금융통화위원회가 기준금리를 3.00%에서 동결했다. 이창용 총재는 "글로벌 경기 불확실성이 높아 신중한 접근이 필요하다"고 밝혔다.
@@ -53,29 +37,6 @@ export default function NewsPage() {
   const infographicRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const parseMutation = useMutation({
-    mutationFn: async (text: string) => {
-      const res = await apiRequest("POST", "/api/news/parse", { text });
-      return res.json();
-    },
-    onSuccess: (result) => {
-      if (result.success) {
-        setParsedData(result.data);
-        toast({
-          title: "인포그래픽 생성 완료!",
-          description: `${result.data.items.length}개의 뉴스 항목이 파싱되었습니다.`,
-        });
-      }
-    },
-    onError: () => {
-      toast({
-        title: "오류 발생",
-        description: "뉴스 파싱에 실패했습니다. 다시 시도해주세요.",
-        variant: "destructive",
-      });
-    },
-  });
-
   const handleGenerate = useCallback(() => {
     if (!rawText.trim()) {
       toast({
@@ -85,8 +46,13 @@ export default function NewsPage() {
       });
       return;
     }
-    parseMutation.mutate(rawText);
-  }, [rawText, parseMutation, toast]);
+    const result = parseNewsText(rawText.trim());
+    setParsedData(result);
+    toast({
+      title: "인포그래픽 생성 완료!",
+      description: `${result.items.length}개의 뉴스 항목이 파싱되었습니다.`,
+    });
+  }, [rawText, toast]);
 
   const handleLoadSample = useCallback(() => {
     setRawText(SAMPLE_NEWS);
@@ -203,17 +169,11 @@ export default function NewsPage() {
                 </span>
                 <Button
                   onClick={handleGenerate}
-                  disabled={parseMutation.isPending || !rawText.trim()}
+                  disabled={!rawText.trim()}
                   className="primary-button text-white px-6"
                 >
-                  {parseMutation.isPending ? (
-                    <>처리 중...</>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      인포그래픽 생성
-                    </>
-                  )}
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  인포그래픽 생성
                 </Button>
               </div>
             </div>
